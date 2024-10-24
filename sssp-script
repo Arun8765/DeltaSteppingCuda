@@ -1,0 +1,15 @@
+#!/bin/sh
+#SBATCH --job-name=ssspcuda
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=1
+#SBATCH --nodelist=node5
+
+### Change to the relevant directory
+cd /home/arunjoshua/ParallelProg
+./deltaStepping input/test_graph.mtx 1
+./deltaStepping input/test_graph.mtx 500
+./deltaStepping input/test_graph.mtx 1000
+./deltaStepping input/test_graph.mtx 5000
+./deltaStepping input/test_graph.mtx 10000
+./deltaStepping input/test_graph.mtx 50000
+./deltaStepping input/test_graph.mtx 100000
