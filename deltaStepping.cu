@@ -40,6 +40,7 @@ void readMtxFile(const char *filename , vector<vector<vector<int>>> & matrix){
         fin >> m >> n >> data;
         maxWeight = max(maxWeight, data);
         matrix[m-1].push_back({n-1,data});
+        matrix[n-1].push_back({m-1,data});
 
     }
     fin.close();
@@ -98,10 +99,11 @@ struct DistParent{
 __global__ void deltaSteppingKernel(
     // vector<vector<vector<int>>> adjList,
     int M,
-    int * rowPtr,
-    int * colInd,
-    int * weights,
-    DistParent * distParent,
+    int * d_rowPtr,
+    int * d_colInd,
+    int * d_weights,
+    DistParent * d_distParent,
+    // int * d_distances,
     int delta, 
     int currBucket,
     int * changeDone
@@ -113,31 +115,35 @@ __global__ void deltaSteppingKernel(
     int u = blockId * blockSize + threadId; // Current Node u
     if(u >= M || u < 0) return;
 
-    int d = distParent[u].dist;
-    if(d == INF) return;
+
+    int d = d_distParent[u].dist;
+    if(d >= INF) return;
     
     int currNodeBucket = d / delta;
     if(currNodeBucket != currBucket) return;
     
-    for(int i=0;i<rowPtr[u+1] - rowPtr[u];i++){
-        int v = colInd[rowPtr[u] + i];
-        int w = weights[rowPtr[u] + i];
+    for(int i=0;i<d_rowPtr[u+1] - d_rowPtr[u];i++){
+        int v = d_colInd[d_rowPtr[u] + i];
+        int w = d_weights[d_rowPtr[u] + i];
         if(v == u){
             continue;
         }
-        if(d + w < distParent[v].dist){
+
+        if(d + w < d_distParent[v].dist){
             int temp = d + w;
             DistParent tempDistParent;
             tempDistParent.dist = temp;
             tempDistParent.parent = u;
             
-            atomicExch(reinterpret_cast<unsigned long long*>(&distParent[v]), *reinterpret_cast<unsigned long long*>(&tempDistParent));
+            atomicExch(reinterpret_cast<unsigned long long*>(&d_distParent[v]), *reinterpret_cast<unsigned long long*>(&tempDistParent));
             // distParent[v] = tempDistParent;
 
-            *changeDone = 1; // Change done should be in out.
+            // *changeDone = 1; // Change done should be in out.
+            changeDone[0] = 1; // Change done should be in out.
         }
     }
 }
+
 
 void adjListToCSR(vector<vector<vector<int>>> & adjList, vector<int> & rowPtr, vector<int> & colInd, vector<int> & weights){
     int edgeCount = 0;
@@ -188,6 +194,7 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
     int * d_weights;
     int * d_changeDone;
     DistParent * d_distParent;
+    // int * d_distances;
 
 
     cudaMalloc( (void **) &d_distParent, M * sizeof(DistParent));
@@ -195,8 +202,9 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
     cudaMalloc( (void **) &d_colInd, colInd.size() * sizeof(int) );
     cudaMalloc( (void **) &d_weights, weights.size() * sizeof(int) );
     cudaMalloc( (void **) &d_changeDone, 1 * sizeof(int));
+    // cudaMalloc( (void **) &d_distances, M * sizeof(int));
 
-
+    // cudaMemcpy( d_distances, &dist[0], M * sizeof(int), cudaMemcpyHostToDevice );
     cudaMemcpy( d_distParent, &distParent[0], M * sizeof(DistParent), cudaMemcpyHostToDevice );
     cudaMemcpy( d_rowPtr, &rowPtr[0], (M+1) * sizeof(int), cudaMemcpyHostToDevice );
     cudaMemcpy( d_colInd, &colInd[0], colInd.size() * sizeof(int), cudaMemcpyHostToDevice );
@@ -217,6 +225,8 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
             cudaMemcpy( d_changeDone, &change[0], 1 * sizeof(int), cudaMemcpyHostToDevice );
 
             deltaSteppingKernel<<<(M+threadBlockSize-1)/threadBlockSize, threadBlockSize>>>(M, d_rowPtr, d_colInd, d_weights, d_distParent, delta, currBucket, d_changeDone);
+            // deltaSteppingKernel<<<(M+threadBlockSize-1)/threadBlockSize, threadBlockSize>>>(M, d_rowPtr, d_colInd, d_weights,d_distParent, d_distances, delta, currBucket, d_changeDone);
+            // deltaSteppingKernel<<<(M+threadBlockSize-1)/threadBlockSize, threadBlockSize>>>(M, d_rowPtr, d_colInd, d_weights, d_distances, delta, currBucket, d_changeDone);
 
             cudaMemcpy(&change[0], d_changeDone, 1 * sizeof(int), cudaMemcpyDeviceToHost);
             cntr++;
@@ -230,7 +240,7 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
         }
 
         if(stopCounter >= stopperLength){
-            // cout<<"Breaking at "<<currBucket<<endl;
+            cout<<"Breaking at "<<currBucket<<endl;
             break;
         }
 
@@ -241,7 +251,17 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
 
     // cuda
     cudaMemcpy( &distParent[0], d_distParent , M * sizeof(DistParent), cudaMemcpyDeviceToHost);
+    // cudaMemcpy( &dist[0], d_distances , M * sizeof(int), cudaMemcpyDeviceToHost);
 
+    // for(int i =0;i<M;i++){
+    //     // if(distParent[i].dist != inf){
+    //     //     cout<<i<<" "<<distParent[i].dist<<" "<<distParent[i].parent<<endl;
+    //     // }
+    //     // cout<<i<<" "<<dist[i]<<endl;
+    //     if(dist[i] != inf){
+    //         cout<<i<<" "<<dist[i]<<endl;
+    //     }
+    // }
 
     gettimeofday(&end_time, NULL);
 
@@ -255,6 +275,9 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
     for(int i=0;i<M;i++){
         dist[i] = distParent[i].dist;
         cudaParent[i] = distParent[i].parent;
+        // if(dist[i] == inf){
+        //     cout<<i<<" "<<dist[i]<<endl;    
+        // }
     }
     
     distCuda = dist;
@@ -265,6 +288,7 @@ void deltaSteppingCuda(vector<vector<vector<int>>> & matrix, const int source, v
     cudaFree(d_weights);
     cudaFree(d_changeDone);
     cudaFree(d_distParent);
+    // cudaFree(d_distances);
 
     cudaDeviceSynchronize();
 
@@ -346,6 +370,10 @@ void solve(int argc, char** argv){
     readMtxFile(filename, matrix);
 
     source = source - 1;
+    if(source < 0 || source >= M){
+        cout<<"Invalid Source Node\n";
+        return;
+    }
 
     vector<int> distSeq(M, inf);
     vector<int> distCuda(M, inf);
@@ -359,12 +387,13 @@ void solve(int argc, char** argv){
         return;
     }
 
-    std::cout << "CUDA-enabled GPU device(s) found: " << deviceCount << std::endl;
+    std::cout << "\n***************\nCUDA-enabled GPU device(s) found: " << deviceCount << std::endl;
 
     deltaSteppingCuda(matrix, source, distCuda);
-    // cout<<"Cuda Returned\n";
+
 
     for(int i=0;i<M;i++){
+        // if(distSeq[i] != distCuda[i] || distSeq[i] == inf){
         if(distSeq[i] != distCuda[i]){
             cout<<"Mismatch at "<<i<<": "<<distSeq[i]<<" "<<distCuda[i]<<endl;
             break;

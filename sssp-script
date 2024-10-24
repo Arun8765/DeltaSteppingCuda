@@ -5,11 +5,12 @@
 #SBATCH --nodelist=node5
 
 ### Change to the relevant directory
-cd /home/arunjoshua/ParallelProg
-./deltaStepping input/test_graph.mtx 1
-./deltaStepping input/test_graph.mtx 500
-./deltaStepping input/test_graph.mtx 1000
-./deltaStepping input/test_graph.mtx 5000
-./deltaStepping input/test_graph.mtx 10000
-./deltaStepping input/test_graph.mtx 50000
-./deltaStepping input/test_graph.mtx 100000
+export CURR_PWD="/scratch/arunjoshua/ParallelProg/Assignment2/Delta_Stepping_22459"
+cd $CURR_PWD
+./deltaStepping ./input/test_graph.mtx 1
+./deltaStepping ./input/test_graph.mtx 500
+./deltaStepping ./input/test_graph.mtx 1000
+./deltaStepping ./input/test_graph.mtx 5000
+./deltaStepping ./input/test_graph.mtx 10000
+./deltaStepping ./input/test_graph.mtx 50000
+./deltaStepping ./input/test_graph.mtx 100000

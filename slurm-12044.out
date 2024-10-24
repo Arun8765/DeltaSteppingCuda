@@ -1,0 +1,37 @@
+/var/spool/slurmd/job12044/slurm_script: line 8: cd: /home/arunjoshua/ParallelProg: No such file or directory
+
+Source Node: 1
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3201476 microseconds
+Writing to file: output/output_seq_1
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 454072 microseconds
+Writing to file: output/output_1
+Comparison Done
+
+Source Node: 500
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3239538 microseconds
+Writing to file: output/output_seq_500
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 452402 microseconds
+Writing to file: output/output_500
+Comparison Done
+
+Source Node: 1000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3166292 microseconds
+Writing to file: output/output_seq_1000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 403435 microseconds
+Writing to file: output/output_1000
+Comparison Done
+
+Source Node: 5000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3225694 microseconds
+Writing to file: output/output_seq_5000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 463159 microseconds
+Writing to file: output/output_5000
+slurmstepd: error: *** JOB 12044 ON node4 CANCELLED AT 2024-04-08T16:24:31 ***

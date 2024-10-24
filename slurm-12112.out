@@ -1,0 +1,63 @@
+
+Source Node: 1
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3148906 microseconds
+Writing to file: output/output_seq_1
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 449225 microseconds
+Writing to file: output/output_1
+Comparison Done
+
+Source Node: 500
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3167778 microseconds
+Writing to file: output/output_seq_500
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 453647 microseconds
+Writing to file: output/output_500
+Comparison Done
+
+Source Node: 1000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3158061 microseconds
+Writing to file: output/output_seq_1000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 442942 microseconds
+Writing to file: output/output_1000
+Comparison Done
+
+Source Node: 5000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3184512 microseconds
+Writing to file: output/output_seq_5000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 456283 microseconds
+Writing to file: output/output_5000
+Comparison Done
+
+Source Node: 10000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3143744 microseconds
+Writing to file: output/output_seq_10000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 463854 microseconds
+Writing to file: output/output_10000
+Comparison Done
+
+Source Node: 50000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3173350 microseconds
+Writing to file: output/output_seq_50000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 466896 microseconds
+Writing to file: output/output_50000
+Comparison Done
+
+Source Node: 100000
+No of nodes:1957027, No of edges:2760388, maxWeight: 200
+For Delta=25, Sequential Delta Stepping Time: 3136407 microseconds
+Writing to file: output/output_seq_100000
+CUDA-enabled GPU device(s) found: 2
+For Delta=25, Cuda Delta Stepping Time: 503587 microseconds
+Writing to file: output/output_100000
+Comparison Done
